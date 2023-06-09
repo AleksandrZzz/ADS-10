@@ -2,56 +2,32 @@
 #ifndef INCLUDE_TREE_H_
 #define INCLUDE_TREE_H_
 #include <vector>
-#include <algorithm>
 class Tree {
-    struct Node {
-        char a;
-        std::vector<Node*> Nodes;
-    };
-    std::vector<char> change;
-    Node* root = nullptr;
-    void make(std::vector<char> val, Node* root) {
-        for (auto i : val) {
-            if (i == root->a) {
-                val.erase(std::remove(val.begin(), val.end(), i),
-                    val.end());
-                for (auto ch : val) {
-                    Node* tmp = new Node;
-                    tmp->a = ch;
-                    root->Nodes.push_back(tmp);
-                }
-            }
-        }
-        for (auto i : root->Nodes) {
-            make(val, i);
-        }
+ private:
+  std::vector<Tree*> child;
+  char symb;
+    explicit Tree(char temp) : symb(temp) {}
+  void addNode(std::vector<char> arr) {
+    for (int i = 0; i < arr.size(); i++) {
+      std::vector<char> temp = arr;
+      child.push_back(new Tree(temp[i]));
+      temp.erase(temp.begin() + i);
+      child[i]->addNode(temp);
     }
-    void Changes(Node* root) {
-        if (root->Nodes.empty()) {
-            change.push_back(root->a);
-            shifts.push_back(change);
-            change.clear();
-        }
-        for (auto i : root->Nodes) {
-            change.push_back(root->a);
-            Changes(i);
-        }
-    }
- public:
-    std::vector<std::vector<char>> shifts;
-    explicit Tree(std::vector<char> val) {
-        root = new Node;
-        root->a = ' ';
-        for (auto i : val) {
-            Node* tmp = new Node;
-            tmp->a = i;
-            root->Nodes.push_back(tmp);
-        }
-        for (auto i : root->Nodes) {
-            make(val, i);
-            Changes(i);
-            change.clear();
-        }
-    }
+  }
+   public:
+  explicit Tree(std::vector<char> vect) {
+    symb = '*';
+    addNode(vect);
+  }
+  int get_size() const {
+    return child.size();
+  }
+  char get_symb() const {
+    return symb;
+  }
+  Tree& operator[](int n) const {
+    return *child[n];
+  }
 };
 #endif  // INCLUDE_TREE_H_
