@@ -1,51 +1,53 @@
 // Copyright 2022 NNTU-CS
-#pragma once
 #ifndef INCLUDE_TREE_H_
 #define INCLUDE_TREE_H_
 #include <algorithm>
-#include <iostream>
+#include  <iostream>
 #include <vector>
-struct Node {
-  char value;
-  bool isRoot = false;
 
-  std::vector<Node*> ptrs;
-};
+
 class Tree {
  private:
-  Node* root;
-  std::vector<std::vector<char>> permutations;
-  void findPermutations(Node* root, std::vector<char> vect) {
-    if (!root->isRoot) vect.push_back(root->value);
-    if (!root->ptrs.empty()) {
-      for (Node* child : root->ptrs) {
-        findPermutations(child, vect);
-      }
-    } else {
-      permutations.push_back(vect);
+    struct Node {
+        bool isRoot = false;
+        char value;
+        std::vector<Node*> Nvect;
+    };
+    Node* root;
+    std::vector<std::vector<char>> permutes;
+    void findPermutes(Node* root, std::vector<char> CHvect) {
+        if (!root->isRoot)
+            CHvect.push_back(root->value);
+        if (root->Nvect.empty()) {
+            permutes.push_back(CHvect);
+        } else {
+            for (Node* child : root->Nvect) {
+                findPermutes(child, CHvect);
+            }
+        }
     }
-  }
-  void insert(Node* root, const std::vector<char>& vect) {
-    for (char c : vect) {
-      Node* temp = new Node;
-      temp->value = c;
-      root->ptrs.push_back(temp);
-      std::vector<char> otherChars(vect);
-      otherChars.erase(std::find(otherChars.begin(), otherChars.end(), c));
-      insert(temp, otherChars);
+    void insert(Node* root, const std::vector<char>& CHvect) {
+        for (char ch : CHvect) {
+            Node* tmpl = new Node;
+            tmpl->value = ch;
+            root->Nvect.push_back(tmpl);
+            std::vector<char> Chars(CHvect);
+            Chars.erase(std::find(Chars.begin(), \
+                Chars.end(), ch));
+            insert(tmpl, Chars);
+        }
     }
-  }
 
  public:
-  explicit Tree(const std::vector<char>& vect) {
-    root = new Node;
-    root->isRoot = true;
-    insert(root, vect);
-    std::vector<char> actual;
-    findPermutations(root, actual);
-  }
-  std::vector<std::vector<char>> getPermutations() const {
-    return permutations;
-  }
+    explicit Tree(const std::vector<char>& vect) {
+        root = new Node;
+        root->isRoot = true;
+        insert(root, vect);
+        std::vector<char> data;
+        findPermutes(root, data);
+    }
+    std::vector<std::vector<char>> getAllPermutes() const {
+        return permutes;
+    }
 };
 #endif  // INCLUDE_TREE_H_
