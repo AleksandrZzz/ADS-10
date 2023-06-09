@@ -3,35 +3,50 @@
 #define INCLUDE_TREE_H_
 #include <vector>
 #include <algorithm>
+
 class Tree {
- private:
-    std::vector<std::vector<char>> list;
-    struct Node {
-      char value = '\0';
-@@ -30,7 +30,8 @@ class Tree {
-      }
-      return root;
-    }
  public:
-    std::vector<std::vector<char>> getPermut() const {
-      return list;
+    explicit Tree(std::vector<char> nums) :root(nullptr) {
+        MakeTree(nums);
     }
-    explicit Tree(std::vector<char>);
-    void Perm(Node*, std::vector<char>);
+    std::vector<std::vector<char>> getPerm() const {
+        return permutations;
+    }
+
+ private:
+    struct Node {
+        char symbol;
+        std::vector<Node*> descen;
+        Node(char sym = '\0') :symbol(sym) {}
+        explicit Node(char sym = '\0') :symbol(sym) {}
+    };
+    Node* root;
+    std::vector<std::vector<char>> permutations;
+    void addNode(Node* newroot, std::vector<char> row) {
+        if (!newroot) {
+            root = newroot = new Node;
+        }
+        for (char symbol : row) {
+            Node* temp = new Node(symbol);
+            newroot->descen.push_back(temp);
+            std::vector<char> newRow(row);
+            newRow.erase(std::find(newRow.begin(), \
+                newRow.end(), symbol));
+            addNode(temp, newRow);
+        }
+    }
+    void evadeTree(Node* newroot, std::vector<char> row) {
+        if (newroot != nullptr && newroot->symbol != '\0')
+            row.push_back(newroot->symbol);
+        if (newroot->descen.empty())
+            permutations.push_back(row);
+        for (Node* descen : newroot->descen) {
+            evadeTree(descen, row);
+        }
+    }
+    void MakeTree(std::vector<char> row) {
+        addNode(root, row);
+        evadeTree(root, {});
+    }
 };
-Tree::Tree(std::vector<char> vec) {
-  root = createTree(root, vec);
-  Perm(root, {});
-}
-void Tree::Perm(Node* root, std::vector<char> rec) {
-  if (root && root->value != '\0') {
-    rec.push_back(root->value);
-  }
-  if (!root->childs.size()) {
-    list.push_back(rec);
-  }
-  for (Node* child : root->childs) {
-    Perm(child, rec);
-  }
-}
 #endif  // INCLUDE_TREE_H_
