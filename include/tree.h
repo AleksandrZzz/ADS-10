@@ -1,52 +1,51 @@
 // Copyright 2022 NNTU-CS
+#pragma once
 #ifndef INCLUDE_TREE_H_
 #define INCLUDE_TREE_H_
-#include <vector>
 #include <algorithm>
+#include <iostream>
+#include <vector>
+struct Node {
+  char value;
+  bool isRoot = false;
 
+  std::vector<Node*> ptrs;
+};
 class Tree {
- public:
-    explicit Tree(std::vector<char> nums) :root(nullptr) {
-        MakeTree(nums);
-    }
-    std::vector<std::vector<char>> getPerm() const {
-        return permutations;
-    }
-
  private:
-    struct Node {
-        char symbol;
-        std::vector<Node*> descen;
-        Node(char sym = '\0') :symbol(sym) {}
-        explicit Node(char sym = '\0') :symbol(sym) {}
-    };
-    Node* root;
-    std::vector<std::vector<char>> permutations;
-    void addNode(Node* newroot, std::vector<char> row) {
-        if (!newroot) {
-            root = newroot = new Node;
-        }
-        for (char symbol : row) {
-            Node* temp = new Node(symbol);
-            newroot->descen.push_back(temp);
-            std::vector<char> newRow(row);
-            newRow.erase(std::find(newRow.begin(), \
-                newRow.end(), symbol));
-            addNode(temp, newRow);
-        }
+  Node* root;
+  std::vector<std::vector<char>> permutations;
+  void findPermutations(Node* root, std::vector<char> vect) {
+    if (!root->isRoot) vect.push_back(root->value);
+    if (!root->ptrs.empty()) {
+      for (Node* child : root->ptrs) {
+        findPermutations(child, vect);
+      }
+    } else {
+      permutations.push_back(vect);
     }
-    void evadeTree(Node* newroot, std::vector<char> row) {
-        if (newroot != nullptr && newroot->symbol != '\0')
-            row.push_back(newroot->symbol);
-        if (newroot->descen.empty())
-            permutations.push_back(row);
-        for (Node* descen : newroot->descen) {
-            evadeTree(descen, row);
-        }
+  }
+  void insert(Node* root, const std::vector<char>& vect) {
+    for (char c : vect) {
+      Node* temp = new Node;
+      temp->value = c;
+      root->ptrs.push_back(temp);
+      std::vector<char> otherChars(vect);
+      otherChars.erase(std::find(otherChars.begin(), otherChars.end(), c));
+      insert(temp, otherChars);
     }
-    void MakeTree(std::vector<char> row) {
-        addNode(root, row);
-        evadeTree(root, {});
-    }
+  }
+
+ public:
+  explicit Tree(const std::vector<char>& vect) {
+    root = new Node;
+    root->isRoot = true;
+    insert(root, vect);
+    std::vector<char> actual;
+    findPermutations(root, actual);
+  }
+  std::vector<std::vector<char>> getPermutations() const {
+    return permutations;
+  }
 };
 #endif  // INCLUDE_TREE_H_
